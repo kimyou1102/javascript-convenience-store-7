@@ -39,7 +39,7 @@ export default class InventoryManagement {
     const product = this.#inventoryInfo.filter(
       (product) => product.name === buyProduct.name && product.promotion !== 'null',
     );
-    if (product) {
+    if (product.length > 0) {
       return true;
     }
     return false;
