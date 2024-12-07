@@ -12,6 +12,7 @@ export default class Controller {
     this.productToBuy;
   }
 
+  // eslint-disable-next-line max-lines-per-function
   async start() {
     const productsData = await getProductsData();
     const promotionsData = await getPromotionsData();
@@ -21,6 +22,13 @@ export default class Controller {
     this.productToBuy = await this.getBuyProducts();
     await this.checkApplicablePromotion(this.productToBuy);
     await this.checkPromotionStock();
+    this.buyProducts();
+  }
+
+  buyProducts() {
+    this.productToBuy.forEach((product) => {
+      this.inventoryManagement.buyProduct(product);
+    });
   }
 
   async checkPromotionStock() {

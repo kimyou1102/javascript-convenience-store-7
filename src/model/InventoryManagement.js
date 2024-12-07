@@ -45,6 +45,37 @@ export default class InventoryManagement {
     return false;
   }
 
+  // eslint-disable-next-line max-lines-per-function
+  buyProduct(buyProduct) {
+    const index = this.#inventoryInfo.findIndex(
+      ({ name, promotion }) => name === buyProduct.name && promotion === 'null',
+    );
+    const product = this.#inventoryInfo[index];
+    if (!buyProduct.promotionName) {
+      this.#inventoryInfo[index].quantity = product.quantity - buyProduct.quantity;
+      return;
+    }
+    // 프로모션 부터
+    const promotionIndex = this.#inventoryInfo.findIndex(
+      ({ name, promotion }) => name === buyProduct.name && promotion === buyProduct.promotionName,
+    );
+    const promotionProduct = this.#inventoryInfo[promotionIndex];
+    const maxPromotionQuantity = this.getMaxPromotionQuantity(
+      buyProduct.promotionName,
+      promotionProduct.quantity,
+    );
+    // 프로모션 가능수보다 적거나 같다면
+    if (maxPromotionQuantity >= buyProduct.quantity) {
+      this.#inventoryInfo[promotionIndex].quantity =
+        promotionProduct.quantity - buyProduct.quantity;
+      return;
+    }
+    // 프로모션 가능수보다 많으면
+    const rest = buyProduct.quantity - maxPromotionQuantity;
+    this.#inventoryInfo[promotionIndex].quantity = promotionProduct.quantity - maxPromotionQuantity;
+    this.#inventoryInfo[index].quantity = product.quantity - rest;
+  }
+
   getPromotionByProductName(productName) {
     const products = this.#inventoryInfo.filter(({ name }) => name === productName);
     const product = products.filter((product) => product.promotion !== 'null');
