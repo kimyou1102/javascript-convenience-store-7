@@ -60,4 +60,36 @@ export default class InventoryManagement {
     const canStock = share * applicableQuantity;
     return canStock - buyProduct.quantity;
   }
+
+  getPromomtionQuantity(quantity, promotionName) {
+    const { get, buy } = this.#promotionInfo.find(({ name }) => name === promotionName);
+    const applicableQuantity = get + buy;
+    const share = Math.floor(quantity / applicableQuantity);
+    return share;
+  }
+
+  getInsufficientPromotionStock(promotionProduct) {
+    const product = this.getPromotionProduct(promotionProduct);
+    const maxPromotionQuantity = this.getMaxPromotionQuantity(
+      promotionProduct.promotionName,
+      product.quantity,
+    );
+    const gap = maxPromotionQuantity - promotionProduct.quantity;
+    if (gap >= 0) return 0;
+    return gap * -1;
+  }
+
+  getMaxPromotionQuantity(promotionName, quantity) {
+    const { get, buy } = this.#promotionInfo.find(({ name }) => name === promotionName);
+    const applicableQuantity = get + buy;
+    const share = Math.floor(quantity / applicableQuantity);
+    return share * applicableQuantity;
+  }
+
+  getPromotionProduct(promotionProduct) {
+    return this.#inventoryInfo.find(
+      ({ name, promotion }) =>
+        name === promotionProduct.name && promotion === promotionProduct.promotionName,
+    );
+  }
 }
