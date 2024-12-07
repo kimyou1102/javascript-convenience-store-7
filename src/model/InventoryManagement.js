@@ -44,4 +44,20 @@ export default class InventoryManagement {
     }
     return false;
   }
+
+  getPromotionByProductName(productName) {
+    const products = this.#inventoryInfo.filter(({ name }) => name === productName);
+    const product = products.filter((product) => product.promotion !== 'null');
+    if (product.length === 0) return null;
+    return product[0].promotion;
+  }
+
+  getInsufficientStockCount(buyProduct) {
+    const promotionName = this.getPromotionByProductName(buyProduct.name);
+    const { get, buy } = this.#promotionInfo.filter(({ name }) => name === promotionName)[0];
+    const applicableQuantity = get + buy;
+    const share = Math.ceil(buyProduct.quantity / applicableQuantity);
+    const canStock = share * applicableQuantity;
+    return canStock - buyProduct.quantity;
+  }
 }

@@ -23,7 +23,31 @@ export default class Controller {
   async checkApplicablePromotion(productToBuy) {
     for (let product of productToBuy) {
       const isPromotion = this.inventoryManagement.canApplyPromotion(product);
+      if (isPromotion) {
+        await this.checkStock(product);
+      }
     }
+  }
+
+  async checkStock(product) {
+    const count = this.inventoryManagement.getInsufficientStockCount(product);
+    const response = await this.getResponseToAdd(product.name, count);
+    if (response === 'Y') {
+      this.addProduct(product.name, count);
+    }
+  }
+
+  addProduct(name, count) {
+    const index = this.productToBuy.findIndex((product) => product.name === name);
+    const product = this.productToBuy[index];
+    this.productToBuy[index].quantity = product.quantity + count;
+  }
+
+  async getResponseToAdd(name, count) {
+    const input = await InputView.getInput(
+      `\n현재 ${name}은(는) ${count}개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)`,
+    );
+    return input;
   }
 
   async getBuyProducts() {
