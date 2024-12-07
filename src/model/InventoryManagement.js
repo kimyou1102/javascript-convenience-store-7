@@ -35,16 +35,6 @@ export default class InventoryManagement {
     return this.#promotionInfo;
   }
 
-  canApplyPromotion(buyProduct) {
-    const product = this.#inventoryInfo.filter(
-      (product) => product.name === buyProduct.name && product.promotion !== 'null',
-    );
-    if (product.length > 0) {
-      return true;
-    }
-    return false;
-  }
-
   // eslint-disable-next-line max-lines-per-function
   buyProduct(buyProduct) {
     const index = this.#inventoryInfo.findIndex(
