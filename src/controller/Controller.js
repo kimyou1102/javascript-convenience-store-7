@@ -3,13 +3,14 @@ import OutputView from '../view/OutputView.js';
 import InventoryManagement from '../model/InventoryManagement.js';
 import { getProductsData, getPromotionsData } from '../utils/getfileData.js';
 import { parseProducts } from '../utils/parseProduct.js';
-
+import Membership from '../model/Membership.js';
 //[물-3],[사이다-5],[감자칩-3]
 
 export default class Controller {
   constructor() {
     this.inventoryManagement;
-    this.productToBuy;
+    this.productToBuy = [];
+    this.membership = new Membership(8000);
   }
 
   // eslint-disable-next-line max-lines-per-function
@@ -23,6 +24,23 @@ export default class Controller {
     await this.checkApplicablePromotion(this.productToBuy);
     await this.checkPromotionStock();
     this.buyProducts();
+    const money = this.sumPrice();
+    const membershipAmount = await this.getMembershipAmount(money);
+    const applicableProducts = this.productToBuy.filter((product) => product.promotionName);
+  }
+
+  sumPrice() {
+    return this.productToBuy.reduce((acc, value) => acc + value.price * value.quantity, 0);
+  }
+
+  async getMembershipAmount(money) {
+    if (money === 0) return 0;
+    const response = await this.getResponseToMembership();
+
+    if (response === 'Y') {
+      return this.membership.discountMembership(money);
+    }
+    return 0;
   }
 
   buyProducts() {
@@ -54,13 +72,20 @@ export default class Controller {
 
   async checkApplicablePromotion(productToBuy) {
     for (let product of productToBuy) {
-      const isPromotion = this.inventoryManagement.canApplyPromotion(product);
       const promotionName = this.inventoryManagement.getPromotionByProductName(product.name);
-      if (isPromotion) {
+      if (promotionName !== null) {
         await this.checkAddStock(product);
         this.addPromotionValue(product.name, promotionName);
       }
+      this.addPriceValue(product.name);
     }
+  }
+
+  addPriceValue(productName) {
+    const index = this.productToBuy.findIndex(({ name }) => name === productName);
+    const product = this.productToBuy[index];
+    const price = this.inventoryManagement.getPriceByProductName(productName);
+    this.productToBuy[index] = { ...product, price };
   }
 
   addPromotionValue(productName, promotionName) {
@@ -97,6 +122,11 @@ export default class Controller {
     const index = this.productToBuy.findIndex((product) => product.name === name);
     const product = this.productToBuy[index];
     this.productToBuy[index].quantity = product.quantity + count;
+  }
+
+  async getResponseToMembership() {
+    const input = await InputView.getInput('멤버십 할인을 받으시겠습니까? (Y/N)');
+    return input;
   }
 
   async getResponseToNotApplied(name, count) {

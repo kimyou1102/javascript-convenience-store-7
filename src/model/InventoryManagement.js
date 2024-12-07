@@ -76,6 +76,11 @@ export default class InventoryManagement {
     this.#inventoryInfo[index].quantity = product.quantity - rest;
   }
 
+  getPriceByProductName(productName) {
+    const product = this.#inventoryInfo.find(({ name }) => name === productName);
+    return product.price;
+  }
+
   getPromotionByProductName(productName) {
     const products = this.#inventoryInfo.filter(({ name }) => name === productName);
     const product = products.filter((product) => product.promotion !== 'null');
