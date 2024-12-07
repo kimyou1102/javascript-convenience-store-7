@@ -6,7 +6,6 @@ import { parseProducts } from '../utils/parseProduct.js';
 import Membership from '../model/Membership.js';
 import { DateTimes } from '@woowacourse/mission-utils';
 import { validateBuyProducts, validateResponse } from '../utils/validation.js';
-//[물-3],[사이다-5],[감자칩-3]
 
 export default class Controller {
   constructor() {
@@ -83,7 +82,6 @@ export default class Controller {
         promotionName,
         DateTimes.now(),
       );
-      console.log('isApplicableDate:', isApplicableDate);
       if (promotionName !== null && isApplicableDate) {
         await this.checkAddStock(product);
         this.addPromotionValue(product.name, promotionName);
