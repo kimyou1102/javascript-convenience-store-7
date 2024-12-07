@@ -6,6 +6,7 @@ export default class InputView {
       return await Console.readLineAsync(`${message}\n`);
     } catch (error) {
       console.error(error);
+      return 'N';
     }
   }
 }
