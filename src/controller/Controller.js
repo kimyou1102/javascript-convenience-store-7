@@ -27,6 +27,7 @@ export default class Controller {
     const money = this.sumPrice();
     const membershipAmount = await this.getMembershipAmount(money);
     const applicableProducts = this.productToBuy.filter((product) => product.promotionName);
+    OutputView.printReceipt(this.productToBuy, applicableProducts, membershipAmount);
   }
 
   sumPrice() {
