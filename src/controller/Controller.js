@@ -30,6 +30,8 @@ export default class Controller {
     const membershipAmount = await this.getMembershipAmount(money);
     const applicableProducts = this.productToBuy.filter((product) => product.promotionName);
     OutputView.printReceipt(this.productToBuy, applicableProducts, membershipAmount);
+    const response = await this.getResponseToAddPurchase();
+    if (response === 'Y') await this.start();
   }
 
   sumPrice() {
@@ -131,6 +133,14 @@ export default class Controller {
     const index = this.productToBuy.findIndex((product) => product.name === name);
     const product = this.productToBuy[index];
     this.productToBuy[index].quantity = product.quantity + count;
+  }
+
+  async getResponseToAddPurchase() {
+    const input = await this.getValidatedInputWithRetry(
+      '감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)',
+      validateResponse,
+    );
+    return input;
   }
 
   async getResponseToMembership() {

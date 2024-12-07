@@ -8,26 +8,6 @@ export default class InventoryManagement {
     this.#inventoryInfo = inventoryInfo;
     this.#promotionInfo = promotionInfo;
   }
-  /**
-   * 재고
-   * {
-   *   name,
-   *   price,
-   *   quantity,
-   *   promotion
-   * }
-   *  */
-
-  /**
-   * 프로모션
-   * {
-   *   name,
-   *   buy,
-   *   get,
-   *   start_date,
-   *   end_date
-   * }
-   *  */
 
   getInventoryInfo() {
     return this.#inventoryInfo;
@@ -59,10 +39,38 @@ export default class InventoryManagement {
     };
   }
 
+  // eslint-disable-next-line max-lines-per-function
+  getTotalInSufficientCount(name, promotionName, quantity) {
+    const productNonePromotion = this.#inventoryInfo.find(
+      (product) => product.name === name && product.promotion === 'null',
+    );
+    const promotionProduct = this.#inventoryInfo.find(
+      (product) => product.name === name && product.promotion !== 'null',
+    );
+    if (!promotionProduct) {
+      // 프로모션 아예 없는 경우
+      const gap = quantity - productNonePromotion.quantity;
+      if (gap <= 0) return true;
+      return false;
+    }
+    promotionProduct.promotionName = promotionProduct.promotion;
+    const product = this.getPromotionProduct(promotionProduct);
+    if (productNonePromotion.quantity - quantity >= 0) return true;
+
+    const maxPromotionQuantity = this.getMaxPromotionQuantity(promotionName, product.quantity);
+    const rest = productNonePromotion.quantity - maxPromotionQuantity;
+    const gap = rest - quantity;
+    if (gap <= 0) return false;
+    return true;
+  }
+
   getPromotion(promotionName) {
     return this.#promotionInfo.find((promotion) => promotion.name === promotionName);
   }
 
+  getProductByProductName(productName) {
+    return this.#inventoryInfo.find(({ name }) => name === productName).name;
+  }
   // eslint-disable-next-line max-lines-per-function
   buyProduct(buyProduct) {
     const index = this.#inventoryInfo.findIndex(
