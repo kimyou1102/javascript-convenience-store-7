@@ -4,6 +4,7 @@ import InventoryManagement from '../model/InventoryManagement.js';
 import { getProductsData, getPromotionsData } from '../utils/getfileData.js';
 import { parseProducts } from '../utils/parseProduct.js';
 import Membership from '../model/Membership.js';
+import { DateTimes } from '@woowacourse/mission-utils';
 //[물-3],[사이다-5],[감자칩-3]
 
 export default class Controller {
@@ -71,10 +72,15 @@ export default class Controller {
     this.updatePromomtionQuantity(product.name, quantity, product.promotionName);
   }
 
+  // eslint-disable-next-line max-lines-per-function
   async checkApplicablePromotion(productToBuy) {
     for (let product of productToBuy) {
-      const promotionName = this.inventoryManagement.getPromotionByProductName(product.name);
-      if (promotionName !== null) {
+      const promotionName = this.inventoryManagement.getPromotionByProductName(
+        product.name,
+        DateTimes.now(),
+      );
+      const isApplicableDate = this.inventoryManagement.isPromotionApplicableDate(promotionName);
+      if (promotionName !== null && isApplicableDate) {
         await this.checkAddStock(product);
         this.addPromotionValue(product.name, promotionName);
       }

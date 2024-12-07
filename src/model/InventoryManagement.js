@@ -1,3 +1,5 @@
+import { parseDateToKr } from '../utils/parseDate.js';
+
 export default class InventoryManagement {
   #inventoryInfo;
   #promotionInfo;
@@ -33,6 +35,32 @@ export default class InventoryManagement {
 
   getPromotionInfo() {
     return this.#promotionInfo;
+  }
+
+  isPromotionApplicableDate(promotionName, now) {
+    if (!this.getPromotion(promotionName)) return false;
+    const { startDate, endDate } = this.getPromotionDateByName(promotionName);
+    const nowDate = new Date(now);
+    nowDate.setHours(0, 0, 0, 0);
+    if (startDate <= nowDate && nowDate <= endDate) {
+      return true;
+    }
+    return false;
+  }
+
+  getPromotionDateByName(name) {
+    const { start_date, end_date } = this.#promotionInfo.find(
+      (promotion) => promotion.name === name,
+    );
+
+    return {
+      startDate: parseDateToKr(start_date),
+      endDate: parseDateToKr(end_date),
+    };
+  }
+
+  getPromotion(promotionName) {
+    return this.#promotionInfo.find((promotion) => promotion.name === promotionName);
   }
 
   // eslint-disable-next-line max-lines-per-function
