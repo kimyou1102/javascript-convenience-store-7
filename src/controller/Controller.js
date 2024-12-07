@@ -5,13 +5,25 @@ import { getProductsData, getPromotionsData } from '../utils/getfileData.js';
 import { parseProducts } from '../utils/parseProduct.js';
 
 export default class Controller {
+  constructor() {
+    this.inventoryManagement;
+    this.productToBuy;
+  }
+
   async start() {
     const productsData = await getProductsData();
     const promotionsData = await getPromotionsData();
-    const inventoryManagement = new InventoryManagement(productsData, promotionsData);
-    const inventory = inventoryManagement.getInventoryInfo();
+    this.inventoryManagement = new InventoryManagement(productsData, promotionsData);
+    const inventory = this.inventoryManagement.getInventoryInfo();
     OutputView.printGreetingAndInventory(inventory);
-    const buyProducts = await this.getBuyProducts();
+    this.productToBuy = await this.getBuyProducts();
+    this.checkApplicablePromotion(this.productToBuy);
+  }
+
+  async checkApplicablePromotion(productToBuy) {
+    for (let product of productToBuy) {
+      const isPromotion = this.inventoryManagement.canApplyPromotion(product);
+    }
   }
 
   async getBuyProducts() {
